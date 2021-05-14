@@ -1,0 +1,6 @@
+{
+    "uart":{
+        "path":"/dev/ttyUSB0",
+        "baudrate":460800
+    }
+}
