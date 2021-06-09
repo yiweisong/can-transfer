@@ -1,3 +1,4 @@
+from os import spawnlp
 import time
 
 from packages.receiver import (
@@ -7,7 +8,7 @@ from packages.receiver import (
 )
 from packages.transfer import create_transfer
 from packages.typings import (UartOptions, CanOptions, UartMessageBody)
-from packages.common import (can_parser, uart_helper)
+from packages.common import (can_parser, uart_helper, log_helper)
 
 
 def build_speed(speed_data) -> float:
@@ -27,7 +28,7 @@ def handle_wheel_speed_data(data):
 
     if TRANSFER:
         TRANSFER.send(command)
-    return
+    log_helper.log_speed(speed)
 
 
 def receiver_handler(data):
