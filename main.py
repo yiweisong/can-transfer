@@ -1,4 +1,3 @@
-from os import spawnlp
 import time
 
 from packages.receiver import (
@@ -28,7 +27,9 @@ def handle_wheel_speed_data(data):
 
     if TRANSFER:
         TRANSFER.send(command)
-    log_helper.log_speed(speed)
+
+    # log timestamp
+    log_helper.log('{0}, {1}'.format(data.timestamp,speed))
 
 
 def receiver_handler(data):
@@ -37,11 +38,12 @@ def receiver_handler(data):
         handle_wheel_speed_data(data)
 
 
-TRANSFER = create_transfer(UartOptions('/dev/ttyUSB0', 460800))
+TRANSFER = None #create_transfer(UartOptions('/dev/ttyUSB0', 460800))
 # create_mock_receiver()
 RECEIVER = create_can_receiver(CanOptions('can0', 500000))
-# create_transfer(UartOptions('/dev/cu.usbserial-AK005M29', 460800))
+
 RECEIVER.on('data', receiver_handler)
 
+print('Log start working...')
 while 1:
     time.sleep(1)

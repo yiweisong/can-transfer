@@ -7,6 +7,7 @@ from pyee import EventEmitter
 class mock_can_message:
     arbitration_id = 0
     data = []
+    timestamp = 0
 
 
 def mock_speed_message():
@@ -16,6 +17,7 @@ def mock_speed_message():
 
     msg = mock_can_message()
     msg.arbitration_id = 0xAA
+    msg.timestamp = time.time()
     msg.data = speed_data
     return msg
 
@@ -29,4 +31,4 @@ class MockReceiver(EventEmitter):
         while True:
             message = mock_speed_message()
             self.emit('data', message)
-            time.sleep(1)
+            time.sleep(0.1)
