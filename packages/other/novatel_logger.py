@@ -28,17 +28,17 @@ def configNovatel(ser):
                 #'setinsrotation rbv 90 0 180\r',\
                 'setinstranslation user 1.0 -0.37 -1.0 0.10 0.10 0.10\r',\
                 'log INSCONFIGB ONCHANGED\r',\
-                'log RAWIMUSXB ONNEW\r',\
+                #'log RAWIMUSXB ONNEW\r',\
                 'log versionb once\r',\
                 'log rxconfigb once\r',\
                 'log rxstatusb once\r',\
                 'log thisantennatypeb once\r',\
-                'log inspvaxb ontime 0.1\r',\
+                'log inspvaxb ontime 0.01\r',\
                 #'log bestposb ontime 0.1\r',\
-                'log bestgnssposb ontime 0.1\r',\
+                #'log bestgnssposb ontime 0.1\r',\
                 #'log bestgnssvelb ontime 0.1\r',\
                 #'log heading2b onnew\r',\
-                'log ncom1 gpgga ontime 1\r',\
+                #'log ncom1 gpgga ontime 1\r',\
                 'saveconfig\r']
         
     for cmd in setupcommands7:

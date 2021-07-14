@@ -14,7 +14,7 @@ from packages.other import novatel_logger
 def can_log_task():
     def build_speed(speed_data) -> float:
         avg_speed = (speed_data[2]+speed_data[3])/2
-        return avg_speed / 3600  # * 1000/1000
+        return avg_speed  # * 1000/1000
 
     def handle_wheel_speed_data(data):
         # parse wheel speed
