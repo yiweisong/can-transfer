@@ -1,5 +1,6 @@
 import time
 import threading
+from datetime import datetime
 from packages.receiver import (
     create_uart_receiver,
     create_can_receiver,
@@ -9,6 +10,11 @@ from packages.transfer import create_transfer
 from packages.typings import (UartOptions, CanOptions, UartMessageBody)
 from packages.common import (can_parser, uart_helper, log_helper)
 from packages.other import novatel_logger
+
+
+def print_message(msg, *args):
+    format_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+    print('{0} - {1}'.format(format_time, msg), *args)
 
 
 def can_log_task():
@@ -39,7 +45,7 @@ def can_log_task():
             handle_wheel_speed_data(data)
 
     try:
-        print('[Info] CAN log task started')
+        print_message('[Info] CAN log task started')
         # create_transfer(UartOptions('/dev/ttyUSB0', 460800))
         can_log_transfer = None
         # create_mock_receiver()
@@ -47,16 +53,17 @@ def can_log_task():
         can_log_receiver = create_can_receiver(CanOptions('can0', 500000))
         can_log_receiver.on('data', receiver_handler)
     except Exception as ex:
-        print('[Error] CAN log task has error')
-        print('[Error] Reason:{0}'.format(ex))
+        print_message('[Error] CAN log task has error')
+        print_message('[Error] Reason:{0}'.format(ex))
+
 
 def novatel_log_task():
     try:
-        print('[Info] Novatel log task started')
+        print_message('[Info] Novatel log task started')
         novatel_logger.start(UartOptions('/dev/ttyUSB0', 230400))
     except Exception as ex:
-        print('[Error] Novatel log task has error')
-        print('[Error] Reason:{0}'.format(ex))
+        print_message('[Error] Novatel log task has error')
+        print_message('[Error] Reason:{0}'.format(ex))
     # TODO: refactor as receiver
     # def receiver_handler(data):
     #     pass
@@ -69,6 +76,7 @@ if __name__ == '__main__':
     threading.Thread(target=can_log_task).start()
     threading.Thread(target=novatel_log_task).start()
 
-    print('[Info] Log start working...')
+    print_message('[Info] Log start working...')
     while 1:
         time.sleep(1)
+        print_message('heartbeat...')

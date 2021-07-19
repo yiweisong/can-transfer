@@ -1,4 +1,5 @@
 import os
+from packages import receiver
 
 import sys
 import math
@@ -20,8 +21,11 @@ class CANReceiver(EventEmitter):
         # set bitrate of can0
         os.system('sudo ip link set {0} type can bitrate {1}'.format(
             options.channel, options.bitrate))
+        # os.system(
+        #     'sudo ip link set {0} type can restart-ms 100'.format(options.channel))
         # open can0
         os.system('sudo ifconfig {0} up'.format(options.channel))
+
         # os.system('sudo /sbin/ip link set can0 up type can bitrate 250000')
         # show details can0 for debug.
         # os.system('sudo ip -details link show can0')
@@ -31,7 +35,22 @@ class CANReceiver(EventEmitter):
         self.can0 = can.interface.Bus(
             channel=options.channel, bustype='socketcan_ctypes')
         # set up Notifier
-        self.notifier = can.Notifier(self.can0, [self.msg_handler])
+        simple_listener = SimpleListener(self)
+        self.notifier = can.Notifier(self.can0, [simple_listener])
 
-    def msg_handler(self, msg):
-        self.emit('data', msg)
+    # def msg_handler(self, msg):
+    #     self.emit('data', msg)
+
+
+class SimpleListener(can.Listener):
+    _receiver = None
+
+    def __init__(self, receiver: CANReceiver) -> None:
+        super().__init__()
+        self._receiver = receiver
+
+    def on_message_received(self, msg):
+        self._receiver.emit('data', msg)
+
+    def on_error(self, exc):
+        print(exc)
