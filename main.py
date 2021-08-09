@@ -1,13 +1,15 @@
 import time
 import threading
+import struct
 from datetime import datetime
 from packages.receiver import (
     create_uart_receiver,
     create_can_receiver,
     create_mock_receiver
 )
-from packages.transfer import create_transfer
-from packages.typings import (UartOptions, CanOptions, UartMessageBody)
+from packages.transfer import (create_transfer,create_eth_100base_t1_transfer)
+from packages.typings import (
+    UartOptions, CanOptions, UartMessageBody, EthOptions)
 from packages.common import (can_parser, uart_helper, log_helper)
 from packages.other import novatel_logger
 
@@ -18,6 +20,10 @@ def print_message(msg, *args):
 
 
 def can_log_task():
+    iface = 'wlan0'
+    src_mac = 'b8:27:eb:04:e0:73'
+    dst_mac = ''
+
     def build_speed(speed_data) -> float:
         avg_speed = (speed_data[2]+speed_data[3])/2
         return avg_speed  # * 1000/1000
@@ -30,8 +36,12 @@ def can_log_task():
 
         speed = build_speed(parse_result)
         # build message for serial port
-        command = uart_helper.build_command(
-            'cA', UartMessageBody('float', speed))
+        # command = uart_helper.build_command(
+        #     'cA', UartMessageBody('float', speed))
+
+        command = uart_helper.build_eth_command(dst_mac, src_mac,
+                                                bytes([0x01, 0x0b]),
+                                                struct.pack("<f", speed))
 
         if can_log_transfer:
             can_log_transfer.send(command)
@@ -47,7 +57,7 @@ def can_log_task():
     try:
         print_message('[Info] CAN log task started')
         # create_transfer(UartOptions('/dev/ttyUSB0', 460800))
-        can_log_transfer = None
+        can_log_transfer = create_eth_100base_t1_transfer(EthOptions(iface, src_mac, dst_mac))
         # create_mock_receiver()
         # create_can_receiver(CanOptions('can0', 500000))
         can_log_receiver = create_can_receiver(CanOptions('can0', 500000))
@@ -74,9 +84,9 @@ def novatel_log_task():
 
 if __name__ == '__main__':
     threading.Thread(target=can_log_task).start()
-    threading.Thread(target=novatel_log_task).start()
+    # threading.Thread(target=novatel_log_task).start()
 
     print_message('[Info] Log start working...')
-    while 1:
+    while True:
         time.sleep(1)
         print_message('heartbeat...')

@@ -47,4 +47,26 @@ class UartMessageBody:
     @property
     def data(self):
         return self._data
-    
+
+
+class EthOptions:
+    _iface: str
+    _src_mac: str
+    _dst_mac: str
+
+    def __init__(self, iface, src_mac, dst_mac) -> None:
+        self._iface = iface
+        self._src_mac = src_mac
+        self._dst_mac = dst_mac
+
+    @property
+    def iface(self):
+        return self._iface
+
+    @property
+    def src_mac(self):
+        return self._src_mac
+
+    @property
+    def dst_mac(self):
+        return self._dst_mac
