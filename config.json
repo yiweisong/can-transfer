@@ -1,6 +1,11 @@
 {
-    "uart":{
-        "path":"/dev/ttyUSB0",
-        "baudrate":460800
+    "devices_mac":[],
+    "local": {
+        "name": "Intel(R) Ethernet Connection (10) I219-V",
+        "mac": "74:78:27:78:48:A4"
+    },
+    "uart": {
+        "path": "/dev/ttyUSB0",
+        "baudrate": 460800
     }
 }

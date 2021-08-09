@@ -1,16 +1,17 @@
 import time
 import threading
 import struct
+import json
 from datetime import datetime
 from packages.receiver import (
     create_uart_receiver,
     create_can_receiver,
     create_mock_receiver
 )
-from packages.transfer import (create_transfer,create_eth_100base_t1_transfer)
+from packages.transfer import (create_transfer, create_eth_100base_t1_transfer)
 from packages.typings import (
     UartOptions, CanOptions, UartMessageBody, EthOptions)
-from packages.common import (can_parser, uart_helper, log_helper)
+from packages.common import (can_parser, uart_helper, log_helper, utils)
 from packages.other import novatel_logger
 
 
@@ -19,10 +20,23 @@ def print_message(msg, *args):
     print('{0} - {1}'.format(format_time, msg), *args)
 
 
+def build_eth_commands(devices_mac, local_mac, packet_type_bytes, message_bytes):
+    commands = []
+    for dest_mac in devices_mac:
+        command = uart_helper.build_eth_command(dest_mac, local_mac,
+                                                packet_type_bytes,
+                                                message_bytes)
+        commands.append(command)
+
+    return commands
+
+
 def can_log_task():
-    iface = 'wlan0'
-    src_mac = 'b8:27:eb:04:e0:73'
-    dst_mac = ''
+    config = utils.get_config()
+
+    iface = config['local']['name']  # 'eth0'
+    src_mac = config['local']['mac']  # 'b8:27:eb:04:e0:73'
+    dst_mac_addresses = config['devices_mac']
 
     def build_speed(speed_data) -> float:
         avg_speed = (speed_data[2]+speed_data[3])/2
@@ -39,12 +53,13 @@ def can_log_task():
         # command = uart_helper.build_command(
         #     'cA', UartMessageBody('float', speed))
 
-        command = uart_helper.build_eth_command(dst_mac, src_mac,
-                                                bytes([0x01, 0x0b]),
-                                                struct.pack("<f", speed))
+        commands = build_eth_commands(dst_mac_addresses, src_mac,
+                                      bytes([0x01, 0x0b]),
+                                      list(struct.pack("<f", speed)))
 
         if can_log_transfer:
-            can_log_transfer.send(command)
+            for command in commands:
+                can_log_transfer.send(command)
 
         # log timestamp
         log_helper.log('{0}, {1}'.format(data.timestamp, speed))
@@ -57,7 +72,8 @@ def can_log_task():
     try:
         print_message('[Info] CAN log task started')
         # create_transfer(UartOptions('/dev/ttyUSB0', 460800))
-        can_log_transfer = create_eth_100base_t1_transfer(EthOptions(iface, src_mac, dst_mac))
+        can_log_transfer = create_eth_100base_t1_transfer(
+            EthOptions(iface, src_mac, dst_mac_addresses))
         # create_mock_receiver()
         # create_can_receiver(CanOptions('can0', 500000))
         can_log_receiver = create_can_receiver(CanOptions('can0', 500000))

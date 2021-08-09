@@ -1,3 +1,5 @@
+import os
+import json
 from datetime import datetime, timedelta
 
 # 闰秒
@@ -13,3 +15,9 @@ def gps_week_seconds_to_utc(gpsweek, gpsseconds, leapseconds=LEAP_SECONDS):
     # timedelta函数会处理seconds为负数的情况
     elapsed = timedelta(days=(gpsweek*7), seconds=(gpsseconds-leapseconds))
     return datetime.strftime(epoch+elapsed, datetimeformat)
+
+def get_config():
+    conf = {}
+    with open(os.path.join(os.getcwd(), 'config.json')) as json_data:
+        conf = (json.load(json_data))
+    return conf
