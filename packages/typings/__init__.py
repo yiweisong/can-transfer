@@ -1,3 +1,5 @@
+from typing import List
+
 class UartOptions:
     _path: str
     _baudrate: int
@@ -52,7 +54,7 @@ class UartMessageBody:
 class EthOptions:
     _iface: str
     _src_mac: str
-    _dst_mac: list(str)
+    _dst_mac: List[str]
 
     def __init__(self, iface, src_mac, dst_mac) -> None:
         self._iface = iface

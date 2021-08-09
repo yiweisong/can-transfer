@@ -64,6 +64,7 @@ def can_log_task():
         # log timestamp
         log_helper.log('{0}, {1}'.format(data.timestamp, speed))
 
+    @utils.throttle(seconds=0.1)
     def receiver_handler(data):
         # parse message id 0xAA(170), it stands for wheel speed
         if data.arbitration_id == 0xAA:
