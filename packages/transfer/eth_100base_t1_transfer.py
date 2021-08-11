@@ -1,6 +1,6 @@
 from scapy.all import (sendp,sendpfast)
 from ..typings import EthOptions
-
+from datetime import datetime
 
 class Eth100BaseT1Transfer:
     def __init__(self, options: EthOptions) -> None:
@@ -8,4 +8,3 @@ class Eth100BaseT1Transfer:
 
     def send(self, data):
         sendp(data, iface=self._options.iface, verbose=0)
-        #sendpfast()

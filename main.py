@@ -1,4 +1,3 @@
-from os import spawnlp
 import time
 import threading
 import struct
@@ -48,6 +47,14 @@ def pop_from_speed_queue():
 
 def can_log_task():
     can_speed_log = app_logger.create_logger('can_speed')
+    config = utils.get_config()
+
+    iface = config['local']['name']  # 'eth0'
+    src_mac = config['local']['mac']  # 'b8:27:eb:04:e0:73'
+    dst_mac_addresses = config['devices_mac']
+
+    can_log_transfer = create_eth_100base_t1_transfer(
+        EthOptions(iface, src_mac, dst_mac_addresses))
 
     def build_speed(speed_data) -> float:
         avg_speed = (speed_data[2]+speed_data[3])/2
@@ -64,7 +71,14 @@ def can_log_task():
         # command = uart_helper.build_command(
         #     'cA', UartMessageBody('float', speed))
 
-        append_to_speed_queue(speed)
+        #append_to_speed_queue(speed)
+        commands = build_eth_commands(dst_mac_addresses, src_mac,
+                                      bytes([0x01, 0x0b]),
+                                      list(struct.pack("<f", speed)))
+
+        if can_log_transfer:
+            for command in commands:
+                can_log_transfer.send(command)
 
         # log timestamp
         can_speed_log.append('{0}, {1}'.format(data.timestamp, speed))
@@ -137,7 +151,7 @@ if __name__ == '__main__':
     app_logger.new_session()
 
     threading.Thread(target=can_log_task).start()
-    threading.Thread(target=transfer_task).start()
+    # threading.Thread(target=transfer_task).start()
     # threading.Thread(target=novatel_log_task).start()
 
     print_message('[Info] Log start working...')
