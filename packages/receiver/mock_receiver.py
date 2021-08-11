@@ -31,4 +31,4 @@ class MockReceiver(EventEmitter):
         while True:
             message = mock_speed_message()
             self.emit('data', message)
-            time.sleep(0.1)
+            time.sleep(0.01)

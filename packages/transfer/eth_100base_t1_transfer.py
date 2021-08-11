@@ -1,4 +1,4 @@
-from scapy.all import sendp
+from scapy.all import (sendp,sendpfast)
 from ..typings import EthOptions
 
 
@@ -8,3 +8,4 @@ class Eth100BaseT1Transfer:
 
     def send(self, data):
         sendp(data, iface=self._options.iface, verbose=0)
+        #sendpfast()
