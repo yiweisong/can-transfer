@@ -6,7 +6,8 @@ from datetime import datetime
 from packages.receiver import (
     create_uart_receiver,
     create_can_receiver,
-    create_mock_receiver
+    create_mock_receiver,
+    create_windows_receiver
 )
 from packages.transfer import (create_transfer, create_eth_100base_t1_transfer)
 from packages.typings import (
@@ -66,7 +67,7 @@ def can_log_task():
         # log timestamp
         can_speed_log.append('{0}, {1}'.format(data.timestamp, speed))
 
-    @utils.throttle(seconds=0.1)
+    @utils.throttle(seconds=0.05)
     def receiver_handler(data):
         # parse message id 0xAA(170), it stands for wheel speed
         if data.arbitration_id == 0xAA:
@@ -76,7 +77,7 @@ def can_log_task():
         print_message('[Info] CAN log task started')
         # create_transfer(UartOptions('/dev/ttyUSB0', 460800))
         # create_mock_receiver()
-        can_log_receiver = create_can_receiver(CanOptions('can0', 500000))
+        can_log_receiver = create_windows_receiver(CanOptions(0, 500000))
         can_log_receiver.on('data', receiver_handler)
     except Exception as ex:
         print_message('[Error] CAN log task has error')

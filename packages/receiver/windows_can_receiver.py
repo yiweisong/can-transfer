@@ -9,7 +9,7 @@ class WindowsCANReceiver(EventEmitter):
         super(WindowsCANReceiver, self).__init__()
 
         self.can = can.interface.Bus(
-            channel=options.channel, bustype='canalystii')
+            channel=options.channel, bustype='canalystii', bitrate=options.bitrate)
         # set up Notifier
         simple_listener = SimpleListener(self)
         self.notifier = can.Notifier(self.can, [simple_listener])
