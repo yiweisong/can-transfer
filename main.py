@@ -13,14 +13,8 @@ from packages.typings import (
     UartOptions, CanOptions, UartMessageBody, EthOptions)
 from packages.common import (can_parser, uart_helper, utils, app_logger)
 from packages.other import novatel_logger
-import collections
 
-RECEIVE_CACHE = collections.deque(maxlen=10000)
-
-
-def print_message(msg, *args):
-    format_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-    print('{0} - {1}'.format(format_time, msg), *args)
+print_message = utils.print_message
 
 
 def build_eth_commands(devices_mac, local_mac, packet_type_bytes, message_bytes):
@@ -32,17 +26,6 @@ def build_eth_commands(devices_mac, local_mac, packet_type_bytes, message_bytes)
         commands.append(command)
 
     return commands
-
-
-def append_to_speed_queue(speed):
-    RECEIVE_CACHE.append(speed)
-
-
-def pop_from_speed_queue():
-    cache_len = len(RECEIVE_CACHE)
-    if cache_len > 0:
-        return RECEIVE_CACHE.popleft(), cache_len
-    return None, cache_len
 
 
 def can_log_task():
@@ -71,7 +54,7 @@ def can_log_task():
         # command = uart_helper.build_command(
         #     'cA', UartMessageBody('float', speed))
 
-        #append_to_speed_queue(speed)
+        # append_to_speed_queue(speed)
         commands = build_eth_commands(dst_mac_addresses, src_mac,
                                       bytes([0x01, 0x0b]),
                                       list(struct.pack("<f", speed)))
@@ -115,38 +98,6 @@ def novatel_log_task():
     # novatel_log_receiver.on('data', receiver_handler)
 
 
-def transfer_task():
-    transfer_log = app_logger.create_logger('transfer_speed')
-
-    config = utils.get_config()
-
-    iface = config['local']['name']  # 'eth0'
-    src_mac = config['local']['mac']  # 'b8:27:eb:04:e0:73'
-    dst_mac_addresses = config['devices_mac']
-
-    can_log_transfer = create_eth_100base_t1_transfer(
-        EthOptions(iface, src_mac, dst_mac_addresses))
-
-    while True:
-        speed, cache_len = pop_from_speed_queue()
-
-        if not speed:
-            time.sleep(0.01)
-            continue
-
-        commands = build_eth_commands(dst_mac_addresses, src_mac,
-                                      bytes([0x01, 0x0b]),
-                                      list(struct.pack("<f", speed)))
-
-        if can_log_transfer:
-            for command in commands:
-                can_log_transfer.send(command)
-
-        transfer_log.append('{0}, {1}'.format(speed, cache_len))
-
-        #time.sleep(0.1)
-
-
 if __name__ == '__main__':
     app_logger.new_session()
 
@@ -154,7 +105,7 @@ if __name__ == '__main__':
     # threading.Thread(target=transfer_task).start()
     # threading.Thread(target=novatel_log_task).start()
 
-    print_message('[Info] Log start working...')
+    print_message('[Info] Application start working...')
     while True:
         time.sleep(1)
         print_message('heartbeat...')

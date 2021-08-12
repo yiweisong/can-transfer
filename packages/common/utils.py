@@ -38,3 +38,7 @@ def throttle(seconds=0, minutes=0, hours=0):
                 return fn(*args, **kwargs)
         return wrapper
     return throttle_decorator
+
+def print_message(msg, *args):
+    format_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+    print('{0} - {1}'.format(format_time, msg), *args)

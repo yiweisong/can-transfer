@@ -1,5 +1,6 @@
 from typing import List
 
+
 class UartOptions:
     _path: str
     _baudrate: int
@@ -18,10 +19,10 @@ class UartOptions:
 
 
 class CanOptions:
-    _channel: str
+    _channel: str or int
     _bitrate: int
 
-    def __init__(self, channel: str, bitrate: int) -> None:
+    def __init__(self, channel: str or int, bitrate: int) -> None:
         self._channel = channel
         self._bitrate = bitrate
 
