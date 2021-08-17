@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 
 
 class UartOptions:
@@ -53,7 +53,7 @@ class UartMessageBody:
 
 
 class EthOptions:
-    _iface: str
+    _iface: Any
     _src_mac: str
     _dst_mac: List[str]
 

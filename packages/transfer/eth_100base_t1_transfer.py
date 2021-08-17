@@ -1,6 +1,7 @@
-from scapy.all import (sendp,sendpfast)
+from scapy.all import (sendp, sendpfast)
 from ..typings import EthOptions
 from datetime import datetime
+
 
 class Eth100BaseT1Transfer:
     def __init__(self, options: EthOptions) -> None:

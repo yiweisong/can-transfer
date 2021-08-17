@@ -30,10 +30,11 @@ def build_eth_commands(devices_mac, local_mac, packet_type_bytes, message_bytes)
 
 
 def can_log_task():
+    from scapy.all import resolve_iface
     can_speed_log = app_logger.create_logger('can_speed')
     config = utils.get_config()
 
-    iface = config['local']['name']  # 'eth0'
+    iface = resolve_iface(config['local']['name'])  # 'eth0'
     src_mac = config['local']['mac']  # 'b8:27:eb:04:e0:73'
     dst_mac_addresses = config['devices_mac']
 
@@ -42,8 +43,9 @@ def can_log_task():
 
     def build_speed(speed_data) -> float:
         avg_speed = (speed_data[2]+speed_data[3])/2
-        return avg_speed  # * 1000/1000
+        return avg_speed
 
+    @utils.throttle(seconds=0.05)
     def handle_wheel_speed_data(data):
         # parse wheel speed
         parse_error, parse_result = can_parser.parse('WHEEL_SPEED', data.data)
@@ -67,7 +69,6 @@ def can_log_task():
         # log timestamp
         can_speed_log.append('{0}, {1}'.format(data.timestamp, speed))
 
-    @utils.throttle(seconds=0.05)
     def receiver_handler(data):
         # parse message id 0xAA(170), it stands for wheel speed
         if data.arbitration_id == 0xAA:
@@ -109,4 +110,4 @@ if __name__ == '__main__':
     print_message('[Info] Application start working...')
     while True:
         time.sleep(1)
-        print_message('heartbeat...')
+        #print_message('heartbeat...')
