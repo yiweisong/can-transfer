@@ -63,8 +63,9 @@ def can_log_task():
                                       list(struct.pack("<f", speed)))
 
         if can_log_transfer:
-            for command in commands:
-                can_log_transfer.send(command)
+            can_log_receiver.send_batch(commands)
+            # for command in commands:
+            #     can_log_transfer.send(command)
 
         # log timestamp
         can_speed_log.append('{0}, {1}'.format(data.timestamp, speed))
