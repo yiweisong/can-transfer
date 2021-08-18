@@ -1,4 +1,4 @@
-# The is a data transfer tool
+# This is a data transfer tool
 
 Transfer Odometer Info
 
