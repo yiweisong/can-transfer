@@ -28,7 +28,8 @@ class MockReceiver(EventEmitter):
         threading.Thread(target=self._receive).start()
 
     def _receive(self):
+        frequency = 20/1000
         while True:
             message = mock_speed_message()
             self.emit('data', message)
-            time.sleep(0.01)
+            time.sleep(frequency)
