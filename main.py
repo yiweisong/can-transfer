@@ -14,6 +14,7 @@ from packages.typings import (
     UartOptions, CanOptions, UartMessageBody, EthOptions)
 from packages.common import (can_parser, uart_helper, utils, app_logger)
 from packages.other import novatel_logger
+from packages.devices.eth_device import collect_devices
 
 print_message = utils.print_message
 
@@ -53,9 +54,6 @@ def can_log_task():
             return
 
         speed = build_speed(parse_result)
-        # build message for serial port
-        # command = uart_helper.build_command(
-        #     'cA', UartMessageBody('float', speed))
 
         # append_to_speed_queue(speed)
         commands = build_eth_commands(dst_mac_addresses, src_mac,
@@ -101,14 +99,53 @@ def novatel_log_task():
     # novatel_log_receiver.on('data', receiver_handler)
 
 
+def mock_speed_task():
+    import random
+    from scapy.all import resolve_iface
+    can_speed_log = app_logger.create_logger('can_speed')
+    config = utils.get_config()
+
+    iface = resolve_iface(config['local']['name'])  # 'eth0'
+    src_mac = config['local']['mac']  # 'b8:27:eb:04:e0:73'
+
+    eth_devices = collect_devices(iface, src_mac)
+
+    if not config['devices_mac']:
+        dst_mac_addresses = [device.mac_address for device in eth_devices]
+    else:
+        dst_mac_addresses = config['devices_mac']
+
+    eth_transfer = create_eth_100base_t1_transfer(
+        EthOptions(iface, src_mac, dst_mac_addresses))
+
+    @utils.throttle(seconds=0.05)
+    def send_speed_data():
+        speed = random.randint(1, 255)
+
+        # append_to_speed_queue(speed)
+        commands = build_eth_commands(dst_mac_addresses, src_mac, bytes(
+            [0x01, 0x0b]), list(struct.pack("<f", speed)))
+
+        if eth_transfer:
+            eth_transfer.send_batch(commands)
+
+        # log timestamp
+        can_speed_log.append('{0}'.format(speed))
+
+    while True:
+        send_speed_data()
+        time.sleep(0.01)
+
+
 if __name__ == '__main__':
     app_logger.new_session()
 
-    threading.Thread(target=can_log_task).start()
+    # threading.Thread(target=can_log_task).start()
     # threading.Thread(target=transfer_task).start()
     # threading.Thread(target=novatel_log_task).start()
+    threading.Thread(target=mock_speed_task).start()
 
     print_message('[Info] Application start working...')
     while True:
         time.sleep(1)
-        #print_message('heartbeat...')
+        # print_message('heartbeat...')
