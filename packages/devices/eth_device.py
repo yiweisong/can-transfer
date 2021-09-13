@@ -6,6 +6,8 @@ from ..common import uart_helper
 
 PING_PKT = b'\x01\xcc'
 
+global PING_RESULT
+
 PING_RESULT = {}
 
 
@@ -22,9 +24,10 @@ def handle_ping_receive_packet(data: Packet):
 
 
 def collect_devices(iface, src_mac) -> List[EthernetDevice]:
+    global PING_RESULT
     PING_RESULT = {}
     devices = []
-    filter_exp = 'ether dst host {0} and ether[16:2] == 0x01cc'.format(
+    filter_exp = 'ether dst host {0}'.format(
         src_mac)
 
     command_line = uart_helper.build_eth_command(

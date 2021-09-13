@@ -37,7 +37,13 @@ def can_log_task():
 
     iface = resolve_iface(config['local']['name'])  # 'eth0'
     src_mac = config['local']['mac']  # 'b8:27:eb:04:e0:73'
-    dst_mac_addresses = config['devices_mac']
+
+    eth_devices = collect_devices(iface, src_mac)
+
+    if not config.get('devices_mac') or len(config['devices_mac']) == 0:
+        dst_mac_addresses = [device.mac_address for device in eth_devices]
+    else:
+        dst_mac_addresses = config['devices_mac']
 
     can_log_transfer = create_eth_100base_t1_transfer(
         EthOptions(iface, src_mac, dst_mac_addresses))
@@ -110,7 +116,7 @@ def mock_speed_task():
 
     eth_devices = collect_devices(iface, src_mac)
 
-    if not config['devices_mac']:
+    if not config.get('devices_mac') or len(config['devices_mac']) == 0:
         dst_mac_addresses = [device.mac_address for device in eth_devices]
     else:
         dst_mac_addresses = config['devices_mac']
@@ -140,10 +146,10 @@ def mock_speed_task():
 if __name__ == '__main__':
     app_logger.new_session()
 
-    # threading.Thread(target=can_log_task).start()
+    threading.Thread(target=can_log_task).start()
     # threading.Thread(target=transfer_task).start()
     # threading.Thread(target=novatel_log_task).start()
-    threading.Thread(target=mock_speed_task).start()
+    #threading.Thread(target=mock_speed_task).start()
 
     print_message('[Info] Application start working...')
     while True:
