@@ -73,3 +73,14 @@ class EthOptions:
     @property
     def dst_mac(self):
         return self._dst_mac
+
+
+class EthernetDevice:
+    _mac_address: str
+
+    def __init__(self, mac_address):
+        self._mac_address = mac_address
+
+    @property
+    def mac_address(self):
+        return self._mac_address
