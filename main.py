@@ -29,6 +29,10 @@ def build_eth_commands(devices_mac, local_mac, packet_type_bytes, message_bytes)
 
     return commands
 
+def output_device_mac_addresses(mac_addresses):
+    print('[Info] Listen mac address list:')
+    for address in mac_addresses:
+        print(address)
 
 def can_log_task():
     from scapy.all import resolve_iface
@@ -44,6 +48,8 @@ def can_log_task():
         dst_mac_addresses = [device.mac_address for device in eth_devices]
     else:
         dst_mac_addresses = config['devices_mac']
+
+    output_device_mac_addresses(dst_mac_addresses)
 
     can_log_transfer = create_eth_100base_t1_transfer(
         EthOptions(iface, src_mac, dst_mac_addresses))
