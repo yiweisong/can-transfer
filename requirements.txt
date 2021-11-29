@@ -2,3 +2,4 @@ pyserial==3.4
 python-can==3.3.4
 scapy==2.4.5
 pyee==8.1.0
+terminal_layout==2.1.2

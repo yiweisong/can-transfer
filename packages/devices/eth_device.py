@@ -27,7 +27,7 @@ def collect_devices(iface, src_mac) -> List[EthernetDevice]:
     global PING_RESULT
     PING_RESULT = {}
     devices = []
-    filter_exp = 'ether dst host {0}'.format(
+    filter_exp = 'ether dst host {0} and ether[16:2] == 0x01cc'.format(
         src_mac)
 
     command_line = uart_helper.build_eth_command(
