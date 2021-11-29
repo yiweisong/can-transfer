@@ -20,6 +20,6 @@ def create_windows_receiver(options) -> WindowsCANReceiver:
     return receiver_inst
 
 
-def create_mock_receiver() -> MockReceiver:
-    receiver_inst = MockReceiver()
+def create_mock_receiver(options) -> MockReceiver:
+    receiver_inst = MockReceiver(options)
     return receiver_inst

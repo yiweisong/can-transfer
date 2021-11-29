@@ -134,7 +134,7 @@ def can_log_task():
 
     try:
         print_message('[Info] CAN log task started')
-        # create_mock_receiver()
+        #can_log_receiver = create_mock_receiver({'can_parser': config['can_parser']})
         can_log_receiver = create_windows_receiver(CanOptions(0, 500000))
         can_log_receiver.on('data', receiver_handler)
     except Exception as ex:
@@ -204,9 +204,12 @@ def start_task():
 
 
 if __name__ == '__main__':
-    iface = select_ethernet_interface()
-    start_task()
+    try:
+        iface = select_ethernet_interface()
+        start_task()
 
-    print_message('[Info] Application start working...')
-    while True:
-        time.sleep(1)
+        print_message('[Info] Application start working...')
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        os._exit(1)
