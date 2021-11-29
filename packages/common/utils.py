@@ -1,5 +1,6 @@
 import os
 import json
+import struct
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -42,3 +43,8 @@ def throttle(seconds=0, minutes=0, hours=0):
 def print_message(msg, *args):
     format_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
     print('{0} - {1}'.format(format_time, msg), *args)
+
+def convert_mac_to_sn(mac_address: str):
+    str_sn_parts = mac_address.split(':')[0:4]
+    integer_sn_parts = [int(value, 16) for value in str_sn_parts]
+    return struct.unpack('<I', bytes(integer_sn_parts))[0]

@@ -75,8 +75,12 @@ def build_eth_commands(devices_mac, local_mac, packet_type_bytes, message_bytes)
 
 def output_device_mac_addresses(mac_addresses):
     print('[Info] Listen mac address list:')
+    if len(mac_addresses) == 0:
+        print('[Info] No device detected')
+
     for address in mac_addresses:
-        print(address)
+        print('MAC: {0}, SN: {1}'.format(
+            address, utils.convert_mac_to_sn(address)))
 
 
 def can_log_task():
