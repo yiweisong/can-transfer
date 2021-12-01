@@ -2,3 +2,6 @@
 .vscode
 *.log
 /data
+/build
+/dist
+__pycache__
