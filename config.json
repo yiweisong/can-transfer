@@ -4,9 +4,5 @@
         "path": "/dev/ttyUSB0",
         "baudrate": 460800
     },
-    "can_parser": "DefaultParser",
-    "local": {
-        "name": "en0",
-        "mac": "88:e9:fe:52:68:56"
-    }
+    "can_parser": "DefaultParser"
 }
