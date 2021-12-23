@@ -23,7 +23,7 @@ def handle_ping_receive_packet(data: Packet):
     PING_RESULT[device_mac] = raw_data
 
 
-def collect_devices(iface, src_mac) -> List[EthernetDevice]:
+def collect_devices(iface, src_mac, timeout=5) -> List[EthernetDevice]:
     global PING_RESULT
     PING_RESULT = {}
     devices = []
@@ -46,7 +46,7 @@ def collect_devices(iface, src_mac) -> List[EthernetDevice]:
     async_sniffer.start()
     time.sleep(.1)
     sendp(command_line, iface=iface, verbose=0, count=1)
-    time.sleep(2)
+    time.sleep(timeout)
     async_sniffer.stop()
 
     for key in PING_RESULT.keys():

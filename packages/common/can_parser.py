@@ -105,6 +105,49 @@ class Customer1Parser(AbstractParser):
         return (0, 0, speed_rr, speed_rl)
 
 
+class Customer2Parser(AbstractParser):
+    def __init__(self):
+        super(Customer1Parser, self).__init__()
+
+    def need_handle_speed_data(self, arbitration_id):
+        return arbitration_id == 0xB6 #TODO
+
+    def parse(self, message_type, data):
+        parse_result = None
+        if message_type == 'WHEEL_SPEED':
+            parse_result = self.parse_wheel_speed(data)
+
+        if not parse_result:
+            return True, None
+
+        return False, parse_result
+
+    def parse_wheel_speed(self, data): #TODO
+        '''
+        Customer 1 parser
+
+        in: CAN msg
+        out: in [km/h]
+            WHEEL_SPEED_FR
+            WHEEL_SPEED_FL
+            WHEEL_SPEED_RR
+            WHEEL_SPEED_RL
+
+        msg length: 8 bytes
+
+        WHEEL_SPEED_RL: msb 8:22 bit
+        WHEEL_SPEED_RR: msb 24:38 bit
+
+        '''
+        speed_rl = (data[1] + ((data[2] & 0x7F) << 8)) * 0.01
+        speed_rl = 0 if speed_rl > 327.65 else speed_rl
+
+        speed_rr = (data[3] + ((data[4] & 0x7F) << 8)) * 0.01
+        speed_rr = 0 if speed_rr > 327.65 else speed_rr
+
+        return (0, 0, speed_rr, speed_rl)
+
+
 class CanParserFactory:
     def create(type: str = None) -> AbstractParser:
         try:
