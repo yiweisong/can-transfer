@@ -21,8 +21,7 @@ def mock_speed_message(can_parser_type):
     elif can_parser_type == 'Customer1Parser':
         msg.arbitration_id = 0xB6
     elif can_parser_type == 'Customer2Parser':
-        # TODO
-        msg.arbitration_id = 0xB6
+        msg.arbitration_id = 0x98fe6e0b
     else:
         msg.arbitration_id = 0xAA
 

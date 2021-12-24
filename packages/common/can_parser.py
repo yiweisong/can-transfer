@@ -63,6 +63,10 @@ class DefaultParser(AbstractParser):
 
 
 class Customer1Parser(AbstractParser):
+    '''
+        Customer: FAW
+    '''
+
     def __init__(self):
         super(Customer1Parser, self).__init__()
 
@@ -106,11 +110,15 @@ class Customer1Parser(AbstractParser):
 
 
 class Customer2Parser(AbstractParser):
+    '''
+        Customer: Inceptio
+    '''
+
     def __init__(self):
-        super(Customer1Parser, self).__init__()
+        super(Customer2Parser, self).__init__()
 
     def need_handle_speed_data(self, arbitration_id):
-        return arbitration_id == 0xB6 #TODO
+        return arbitration_id == 0x98fe6e0b 
 
     def parse(self, message_type, data):
         parse_result = None
@@ -122,9 +130,9 @@ class Customer2Parser(AbstractParser):
 
         return False, parse_result
 
-    def parse_wheel_speed(self, data): #TODO
+    def parse_wheel_speed(self, data):
         '''
-        Customer 1 parser
+        Customer 2 parser
 
         in: CAN msg
         out: in [km/h]
@@ -135,17 +143,24 @@ class Customer2Parser(AbstractParser):
 
         msg length: 8 bytes
 
-        WHEEL_SPEED_RL: msb 8:22 bit
-        WHEEL_SPEED_RR: msb 24:38 bit
+        SteerAxleLeftWheelSpeed: little endian 0:16 bit
+        SteerAxleRightWheelSpeed: little endian 16:32 bit
+        DrivenAxleLeftWheelSpeed: little endian 32:48 bit
+        DrivenAxleRightWheelSpeed: little endian 48:64 bit
 
         '''
-        speed_rl = (data[1] + ((data[2] & 0x7F) << 8)) * 0.01
-        speed_rl = 0 if speed_rl > 327.65 else speed_rl
+        scale = 0.00390625
+        max_value = 250.996
+        speed_fr = (data[0] + data[1] * 256) * scale
+        speed_fl = (data[2] + data[3] * 256) * scale
+        speed_rr = (data[4] + data[5] * 256) * scale
+        speed_rl = (data[6] + data[7] * 256) * scale
 
-        speed_rr = (data[3] + ((data[4] & 0x7F) << 8)) * 0.01
-        speed_rr = 0 if speed_rr > 327.65 else speed_rr
-
-        return (0, 0, speed_rr, speed_rl)
+        return (
+            min(speed_fr,max_value),
+            min(speed_fl,max_value),
+            min(speed_rr,max_value),
+            min(speed_rl,max_value))
 
 
 class CanParserFactory:
@@ -157,7 +172,7 @@ class CanParserFactory:
                 instance = eval(type)()
         except Exception as ex:
             print(
-                'Failed to initalize specified can parser:{0}, use default', format(type))
+                'Failed to initalize specified can parser:{0}, use default'.format(type))
             instance = DefaultParser()
 
         return instance
