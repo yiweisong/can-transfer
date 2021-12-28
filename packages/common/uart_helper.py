@@ -24,7 +24,7 @@ def build_eth_command(dest_mac, src_mac, message_type, message_bytes: bytes)->li
     final_packet = packet + message_bytes
 
     msg_len = len(COMMAND_START) + len(final_packet) + 2
-    payload_len = struct.pack('<H', len(COMMAND_START) + len(final_packet) + 2)
+    payload_len = struct.pack('>H', len(COMMAND_START) + len(final_packet) + 2)
 
     whole_packet=[]
     dest = convert_mac_string_to_bytes(dest_mac)
