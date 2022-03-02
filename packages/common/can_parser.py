@@ -118,7 +118,7 @@ class Customer2Parser(AbstractParser):
         super(Customer2Parser, self).__init__()
 
     def need_handle_speed_data(self, arbitration_id):
-        return arbitration_id == 0x98fe6e0b 
+        return arbitration_id == 0x08fe6e0b 
 
     def parse(self, message_type, data):
         parse_result = None
