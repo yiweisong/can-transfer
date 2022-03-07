@@ -18,6 +18,28 @@ class UartOptions:
         return self._baudrate
 
 
+class TransferBaseOptions:
+    _protocol: str
+    _provider: int
+
+    def __init__(self, protocol, provider) -> None:
+        self._protocol = protocol
+        self._provider = provider
+
+
+class UartTransferOptions(TransferBaseOptions):
+    _conn_options: UartOptions
+
+    def __init__(self, protocol, provider, conn_options: UartOptions) -> None:
+        super().__init__(protocol, provider)
+        self._conn_options = conn_options
+
+class EthernetTransferOptions(TransferBaseOptions):
+
+    def __init__(self, protocol, provider) -> None:
+        super().__init__(protocol, provider)
+
+
 class CanOptions:
     _channel: str or int
     _bitrate: int

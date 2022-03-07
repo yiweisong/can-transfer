@@ -1,8 +1,18 @@
 {
     "devices_mac": [],
-    "uart": {
-        "path": "/dev/ttyUSB0",
-        "baudrate": 460800
-    },
-    "can_parser": "DefaultParser"
+    "can_parser": "DefaultParser",
+    "can_transfer": [
+        {
+            "protocol": "uart",
+            "connection": {
+                "path": "/dev/tty.usbserial-1433200",
+                "baudrate": 115200
+            },
+            "provider": "lg69t"
+        },
+        {
+            "protocol": "100base-t1",
+            "provider": "ins401"
+        }
+    ]
 }

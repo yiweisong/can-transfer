@@ -32,7 +32,9 @@ class DefaultParser(AbstractParser):
         if not parse_result:
             return True, None
 
-        return False, parse_result
+        vehicle_speed = (parse_result[2]+parse_result[3])/2
+
+        return False, vehicle_speed
 
     def parse_wheel_speed(self, data):
         '''
@@ -81,7 +83,9 @@ class Customer1Parser(AbstractParser):
         if not parse_result:
             return True, None
 
-        return False, parse_result
+        vehicle_speed = (parse_result[2]+parse_result[3])/2
+
+        return False, vehicle_speed
 
     def parse_wheel_speed(self, data):
         '''
@@ -118,7 +122,7 @@ class Customer2Parser(AbstractParser):
         super(Customer2Parser, self).__init__()
 
     def need_handle_speed_data(self, arbitration_id):
-        return arbitration_id == 0x08fe6e0b 
+        return arbitration_id == 0x08fe6e0b
 
     def parse(self, message_type, data):
         parse_result = None
@@ -128,7 +132,9 @@ class Customer2Parser(AbstractParser):
         if not parse_result:
             return True, None
 
-        return False, parse_result
+        vehicle_speed = (parse_result[2]+parse_result[3])/2
+
+        return False, vehicle_speed
 
     def parse_wheel_speed(self, data):
         '''
@@ -157,10 +163,10 @@ class Customer2Parser(AbstractParser):
         speed_rl = (data[6] + data[7] * 256) * scale
 
         return (
-            min(speed_fr,max_value),
-            min(speed_fl,max_value),
-            min(speed_rr,max_value),
-            min(speed_rl,max_value))
+            min(speed_fr, max_value),
+            min(speed_fl, max_value),
+            min(speed_rr, max_value),
+            min(speed_rl, max_value))
 
 
 class CanParserFactory:
