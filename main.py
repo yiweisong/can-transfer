@@ -36,7 +36,7 @@ def transfer_task():
     last_error = transfer_center.get_error()
     if last_error:
         print_message(
-            '[Error] Cannot initalize the transfer, check the connection configuration.')
+            '[Error] Initalize transfer failed.')
         print_message('[Error]', last_error.message)
         return
 
@@ -64,13 +64,13 @@ def transfer_task():
             handle_wheel_speed_data(data)
 
     try:
-        print_message('[Info] CAN log task started')
+        print_message('[Info] Transfer task started')
         can_log_receiver = create_mock_receiver(
             {'can_parser': config['can_parser']})
         # can_log_receiver = create_windows_receiver(CanOptions(0, 500000))
         can_log_receiver.on('data', receiver_handler)
     except Exception as ex:
-        print_message('[Error] CAN log task has error')
+        print_message('[Error] Transfer task has error')
         print_message('[Error] Reason:{0}'.format(ex))
 
 
@@ -82,7 +82,7 @@ def start_task():
 if __name__ == '__main__':
     try:
         # iface = select_ethernet_interface()
-        # print_message('[Info] Application start working...')
+        print_message('[Info] Application start working...')
         start_task()
         while True:
             time.sleep(1)

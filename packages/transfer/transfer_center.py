@@ -27,9 +27,11 @@ class LG69TUartTransfer(TransferBase):
         super().__init__()
         self._transfer = create_transfer(options)
 
+        if not self._transfer:
+            raise Exception('Cannot connect the LG69T Uart transfer, please the configuration')
+
     def on_initalize(self):
         # set uart transfer mode
-        print(self._transfer)
         message = message_helper.build_nmea_message(
             [
                 'PQTMCFGDRMODE',
@@ -120,7 +122,7 @@ class TransferFactory:
             return transfer
 
         if protocol == '100base-t1' and provider == 'ins401':
-            transfer = INS401EthernetTransfer(options)
+            transfer = INS401EthernetTransfer()
             transfer.on_initalize()
             return transfer
 
