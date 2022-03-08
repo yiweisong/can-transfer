@@ -28,7 +28,7 @@ class LG69TUartTransfer(TransferBase):
         self._transfer = create_transfer(options)
 
         if not self._transfer:
-            raise Exception('Cannot connect the LG69T Uart transfer, please the configuration')
+            raise Exception('Cannot connect the LG69T Uart transfer, please check the configuration')
 
     def on_initalize(self):
         # set uart transfer mode
@@ -73,13 +73,21 @@ class INS401EthernetTransfer(TransferBase):
         self._src_mac = iface.mac
 
         eth_devices = collect_devices(iface, self._src_mac)
-        self._dst_mac_addresses = [
-            device.mac_address for device in eth_devices]
+        config = utils.get_config()
+
+        if config["devices_mac"]:
+            self._dst_mac_addresses = config["devices_mac"]
+        else:
+            self._dst_mac_addresses = [
+                device.mac_address for device in eth_devices]
 
         self._transfer = create_eth_100base_t1_transfer(EthOptions(
             iface,
             self._src_mac,
             self._dst_mac_addresses))
+
+        if not self._transfer:
+            raise Exception('Cannot connect the INS401 100base-t1 transfer, please check the configuration')
 
     def on_initalize(self):
         print('[Info] Listen mac address list:')
