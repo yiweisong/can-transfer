@@ -8,7 +8,8 @@
                 "path": "/dev/tty.usbserial-1433200",
                 "baudrate": 115200
             },
-            "provider": "lg69t"
+            "provider": "lg69t",
+            "disabled": true
         },
         {
             "protocol": "100base-t1",
