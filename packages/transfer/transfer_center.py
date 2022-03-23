@@ -1,6 +1,8 @@
 import struct
 import time
 from typing import Any, List
+
+from attr import has
 from ..typings import EthOptions, UartOptions
 from ..transfer.uart_transfer import UartTransfer
 from ..transfer.eth_100base_t1_transfer import Eth100BaseT1Transfer
@@ -174,6 +176,9 @@ class TransferCenter:
             return
 
         for item in config:
+            if 'disabled' in item and item['disabled']:
+                continue
+
             try:
                 transfer = TransferFactory.create(item)
             except Exception as ex:
