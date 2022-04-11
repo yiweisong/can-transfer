@@ -57,7 +57,7 @@ class LG69TUartTransfer(TransferBase):
     def send_vehicle_speed(self, speed: int):
         # write uart message
         # build NMEA format message
-        actual = speed*1000/3600
+        actual = round(speed*1000/3600,4)
         message = message_helper.build_nmea_message(
             [
                 'PQTMVEHMSG',
