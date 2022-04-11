@@ -34,6 +34,19 @@ class FileLogger:
         pass
 
 
+class RawFileLogger:
+    _internal_file_access: FileIO
+
+    def __init__(self, path, mode):
+        self._internal_file_access = open(file=path, mode=mode)
+
+    def append(self, data):
+        self._internal_file_access.write(data)
+
+    def flush(self):
+        self._internal_file_access.flush()
+
+
 def new_session():
     if LogContext.initalized:
         return
@@ -62,3 +75,13 @@ def create_logger(file_path) -> FileLogger:
         os.makedirs(dir_name, exist_ok=True)
 
     return FileLogger(abs_file_path)
+
+
+def create_raw_file_logger(file_path, mode='wb') -> RawFileLogger:
+    file_path = '{0}.log'.format(file_path)
+    abs_file_path = os.path.join(LogContext.session_path, file_path)
+    dir_name = os.path.dirname(abs_file_path)
+    if not os.path.isdir(dir_name):
+        os.makedirs(dir_name, exist_ok=True)
+
+    return RawFileLogger(abs_file_path, mode)

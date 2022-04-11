@@ -1,5 +1,6 @@
 import struct
 import time
+import threading
 from typing import Any, List
 
 from ..typings import EthOptions, UartOptions
@@ -7,7 +8,8 @@ from ..transfer.uart_transfer import UartTransfer
 from ..transfer.eth_100base_t1_transfer import Eth100BaseT1Transfer
 from ..devices.eth_device import (select_ethernet_interface, collect_devices)
 from . import (create_transfer, create_eth_100base_t1_transfer)
-from ..common import (message_helper, utils)
+from ..common import (message_helper, utils, app_logger)
+
 
 
 class TransferBase:
@@ -29,7 +31,8 @@ class LG69TUartTransfer(TransferBase):
         self._transfer = create_transfer(options)
 
         if not self._transfer:
-            raise Exception('Cannot connect the LG69T Uart transfer, please check the configuration')
+            raise Exception(
+                'Cannot connect the LG69T Uart transfer, please check the configuration')
 
     def on_initalize(self):
         # set uart transfer mode
@@ -48,6 +51,9 @@ class LG69TUartTransfer(TransferBase):
             ])
         self._transfer.send(message)
 
+        # start a thread to receive message from uart
+        threading.Thread(target=self.__listen_data).start()
+
     def send_vehicle_speed(self, speed: int):
         # write uart message
         # build NMEA format message
@@ -60,6 +66,17 @@ class LG69TUartTransfer(TransferBase):
                 str(actual)
             ])
         self._transfer.send(message)
+
+    def __listen_data(self):
+        log_file = app_logger.create_raw_file_logger('lg69t_raw')
+        try:
+            while True:
+                data = self._transfer.recv()
+                # write to log file
+                log_file.append(data)
+                time.sleep(0.1)
+        except KeyboardInterrupt as ex:
+            return
 
 
 class INS401EthernetTransfer(TransferBase):
@@ -88,7 +105,8 @@ class INS401EthernetTransfer(TransferBase):
             self._dst_mac_addresses))
 
         if not self._transfer:
-            raise Exception('Cannot connect the INS401 100base-t1 transfer, please check the configuration')
+            raise Exception(
+                'Cannot connect the INS401 100base-t1 transfer, please check the configuration')
 
     def on_initalize(self):
         print('[Info] Listen mac address list:')
@@ -125,7 +143,8 @@ class TransferFactory:
         provider = config.get('provider')
         if protocol == 'uart' and provider == 'lg69t':
             connection = config.get('connection')
-            options = UartOptions(connection.get('path'), int(connection.get('baudrate')))
+            options = UartOptions(connection.get(
+                'path'), int(connection.get('baudrate')))
             transfer = LG69TUartTransfer(options)
             transfer.on_initalize()
             return transfer

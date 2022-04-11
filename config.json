@@ -9,11 +9,12 @@
                 "baudrate": 115200
             },
             "provider": "lg69t",
-            "disabled": true
+            "disabled": false
         },
         {
             "protocol": "100base-t1",
-            "provider": "ins401"
+            "provider": "ins401",
+            "disabled": true
         }
     ]
 }

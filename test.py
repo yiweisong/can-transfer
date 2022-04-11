@@ -7,11 +7,14 @@ from packages.common import message_helper
 # print(utc_time)
 
 if __name__ == '__main__':
-    msg1 = message_helper.build_nmea_message(['PQTMSAVEPAR'])
+    msg1 = message_helper.build_nmea_message(['PQTMCFGDRMODE','0'])
     print(msg1)
 
-    msg2 = message_helper.build_nmea_message(['PQTMCFGDRMODE','1','2'])
-    print(msg2)
+    # msg2 = message_helper.build_nmea_message(['PQTMCFGDRMODE','1','2'])
+    # print(msg2)
 
-    msg3 = message_helper.build_nmea_message(['PQTMVEHMSG','1','0',str(12.3)])
-    print(msg3)
+    print(message_helper.build_nmea_message(['PQTMVEHMSG','1','0',str(0)]))
+    print(message_helper.build_nmea_message(['PQTMVEHMSG','1','0',str(12.3)]))
+    print(message_helper.build_nmea_message(['PQTMVEHMSG','1','0',str(20.5)]))
+    print(message_helper.build_nmea_message(['PQTMVEHMSG','1','0',str(30.8)]))
+    #print(msg3)

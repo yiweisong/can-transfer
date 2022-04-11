@@ -65,9 +65,9 @@ def transfer_task():
 
     try:
         print_message('[Info] Transfer task started')
-        # can_log_receiver = create_mock_receiver(
-        #     {'can_parser': config['can_parser']})
-        can_log_receiver = create_windows_receiver(CanOptions(0, 500000))
+        can_log_receiver = create_mock_receiver(
+            {'can_parser': config['can_parser']})
+        #can_log_receiver = create_windows_receiver(CanOptions(0, 500000))
         can_log_receiver.on('data', receiver_handler)
     except Exception as ex:
         print_message('[Error] Transfer task has error')
