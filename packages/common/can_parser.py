@@ -169,6 +169,45 @@ class Customer2Parser(AbstractParser):
             min(speed_rl, max_value))
 
 
+class VoyahParser(AbstractParser):
+    def __init__(self):
+        super(VoyahParser, self).__init__()
+        pass
+
+    def need_handle_speed_data(self, arbitration_id):
+        return arbitration_id == 0x122
+
+    def parse(self, message_type, data):
+        parse_result = None
+        if message_type == 'WHEEL_SPEED':
+            parse_result = self.parse_wheel_speed(data)
+
+        if not parse_result:
+            return True, None
+
+        vehicle_speed = (parse_result[0]+parse_result[1])/2
+
+        return False, vehicle_speed
+
+    def parse_wheel_speed(self, data):
+        '''
+        Parse WHEEL_SPEEDS info from Voyah.
+
+        in: CAN msg
+        out: in [km/h]
+            WHEEL_SPEED_RL
+            WHEEL_SPEED_RR
+
+        dbc: MSB, unsigned
+        '''
+        offset = 0
+        scale = 0.05625
+        max_value = 270
+        speed_rr = (data[0]+((data[1] & 0x1F) << 8)) * scale + offset
+        speed_rl = (data[2]+((data[3] & 0x1F) << 8)) * scale + offset
+        return (min(speed_rr, max_value), min(speed_rl, max_value))
+
+
 class CanParserFactory:
     def create(type: str = None) -> AbstractParser:
         try:

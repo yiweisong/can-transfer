@@ -1,8 +1,11 @@
 import os
+import sys
 import json
 import struct
 from datetime import datetime, timedelta
 from functools import wraps
+
+IS_WINDOWS = sys.platform.__contains__('win32') or sys.platform.__contains__('win64')
 
 # 闰秒
 LEAP_SECONDS = 18
@@ -24,6 +27,15 @@ def get_config():
         conf = (json.load(json_data))
     return conf
 
+def print_message(msg, *args):
+    format_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+    print('{0} - {1}'.format(format_time, msg), *args)
+
+def convert_mac_to_sn(mac_address: str):
+    str_sn_parts = mac_address.split(':')[0:4]
+    integer_sn_parts = [int(value, 16) for value in str_sn_parts]
+    return struct.unpack('<I', bytes(integer_sn_parts))[0]
+
 def throttle(seconds=0, minutes=0, hours=0):
     throttle_period = timedelta(seconds=seconds, minutes=minutes, hours=hours)
 
@@ -40,11 +52,15 @@ def throttle(seconds=0, minutes=0, hours=0):
         return wrapper
     return throttle_decorator
 
-def print_message(msg, *args):
-    format_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-    print('{0} - {1}'.format(format_time, msg), *args)
-
-def convert_mac_to_sn(mac_address: str):
-    str_sn_parts = mac_address.split(':')[0:4]
-    integer_sn_parts = [int(value, 16) for value in str_sn_parts]
-    return struct.unpack('<I', bytes(integer_sn_parts))[0]
+def platform_setup(func):
+    '''
+    do some prepare work for different platform
+    '''
+    if IS_WINDOWS:
+        from .platform import win
+        win.disable_console_quick_edit_mode()
+    
+    @wraps(func)
+    def decorated(*args, **kwargs):
+        func(*args, **kwargs)
+    return decorated

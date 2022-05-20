@@ -73,7 +73,7 @@ def transfer_task():
         print_message('[Error] Transfer task has error')
         print_message('[Error] Reason:{0}'.format(ex))
 
-
+@utils.platform_setup
 def start_task():
     app_logger.new_session()
     threading.Thread(target=transfer_task).start()
@@ -81,7 +81,6 @@ def start_task():
 
 if __name__ == '__main__':
     try:
-        # iface = select_ethernet_interface()
         print_message('[Info] Application start working...')
         start_task()
         while True:

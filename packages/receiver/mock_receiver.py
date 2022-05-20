@@ -13,7 +13,7 @@ class mock_can_message:
 def mock_speed_message(can_parser_type):
     speed_data = []
     for _ in range(8):
-        speed_data.append(random.randint(1, 255))
+        speed_data.append(random.randint(1, 18))
 
     msg = mock_can_message()
     if can_parser_type == 'DefaultParser':
@@ -22,6 +22,8 @@ def mock_speed_message(can_parser_type):
         msg.arbitration_id = 0xB6
     elif can_parser_type == 'Customer2Parser':
         msg.arbitration_id = 0x98fe6e0b
+    elif can_parser_type == 'VoyahParser':
+        msg.arbitration_id = 0x122
     else:
         msg.arbitration_id = 0xAA
 
