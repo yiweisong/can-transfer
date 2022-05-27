@@ -1,40 +1,43 @@
 from abc import ABCMeta, abstractmethod
 
+from pyee import EventEmitter
 
-class AbstractParser:
+
+class AbstractParser(EventEmitter):
     __metaclass__ = ABCMeta
+    _type = ''
 
     @abstractmethod
-    def parse(self, message_type, data):
+    def parse(self, data):
         '''
         parse message
         '''
 
-    def need_handle_speed_data(self, arbitration_id) -> bool:
-        '''
-        check if the arbitration_id contains speed info
-        '''
+    @property
+    def type(self):
+        return self._type
+
+    @type.setter
+    def type(self, value):
+        self._type = value
 
 
 class DefaultParser(AbstractParser):
+    _wheel_speed: float = 0
+    _gear: int = 1
+
     def __init__(self):
         super(DefaultParser, self).__init__()
-        pass
+        self._wheel_speed = 0
+        self._gear = 1
 
-    def need_handle_speed_data(self, arbitration_id):
-        return arbitration_id == 0xAA
+    def parse(self, data):
+        if data.arbitration_id == 0xAA:
+            self._wheel_speed = self.parse_wheel_speed(data.data)
+            self.emit('data', self._wheel_speed * self._gear)
 
-    def parse(self, message_type, data):
-        parse_result = None
-        if message_type == 'WHEEL_SPEED':
-            parse_result = self.parse_wheel_speed(data)
-
-        if not parse_result:
-            return True, None
-
-        vehicle_speed = (parse_result[2]+parse_result[3])/2
-
-        return False, vehicle_speed
+        if data.arbitration_id == 0x3BC:
+            self._gear = self.parse_gear(data.data)
 
     def parse_wheel_speed(self, data):
         '''
@@ -57,35 +60,44 @@ class DefaultParser(AbstractParser):
         '''
         offset = -67.67
         scale = 0.01
-        speed_fr = (data[0] * 256 + data[1]) * scale + offset
-        speed_fl = (data[2] * 256 + data[3]) * scale + offset
         speed_rr = (data[4] * 256 + data[5]) * scale + offset
         speed_rl = (data[6] * 256 + data[7]) * scale + offset
-        return (speed_fr, speed_fl, speed_rr, speed_rl)
+        return (speed_rr + speed_rl)/2
+
+    def parse_gear(self, data):
+        gear = data[1] & 0x3F
+
+        if gear == 32:
+            return 0
+
+        if gear == 16:
+            return -1
+
+        if gear == 8:
+            return 0
+
+        if gear == 0:
+            return 1
+
+        return 0
 
 
 class Customer1Parser(AbstractParser):
     '''
         Customer: FAW
     '''
+    _wheel_speed: float = 0
+    _gear: int = 1
 
     def __init__(self):
         super(Customer1Parser, self).__init__()
+        self._wheel_speed = 0
+        self._gear = 1
 
-    def need_handle_speed_data(self, arbitration_id):
-        return arbitration_id == 0xB6
-
-    def parse(self, message_type, data):
-        parse_result = None
-        if message_type == 'WHEEL_SPEED':
-            parse_result = self.parse_wheel_speed(data)
-
-        if not parse_result:
-            return True, None
-
-        vehicle_speed = (parse_result[2]+parse_result[3])/2
-
-        return False, vehicle_speed
+    def parse(self, data):
+        if data.arbitration_id == 0xB6:
+            self._wheel_speed = self.parse_wheel_speed(data.data)
+            self.emit('data', self._wheel_speed * self._gear)
 
     def parse_wheel_speed(self, data):
         '''
@@ -110,31 +122,25 @@ class Customer1Parser(AbstractParser):
         speed_rr = (data[3] + ((data[4] & 0x7F) << 8)) * 0.01
         speed_rr = 0 if speed_rr > 327.65 else speed_rr
 
-        return (0, 0, speed_rr, speed_rl)
+        return (speed_rr + speed_rl)/2
 
 
 class Customer2Parser(AbstractParser):
     '''
         Customer: Inceptio
     '''
+    _wheel_speed: float = 0
+    _gear: int = 1
 
     def __init__(self):
         super(Customer2Parser, self).__init__()
+        self._wheel_speed = 0
+        self._gear = 1
 
-    def need_handle_speed_data(self, arbitration_id):
-        return arbitration_id == 0x08fe6e0b
-
-    def parse(self, message_type, data):
-        parse_result = None
-        if message_type == 'WHEEL_SPEED':
-            parse_result = self.parse_wheel_speed(data)
-
-        if not parse_result:
-            return True, None
-
-        vehicle_speed = (parse_result[2]+parse_result[3])/2
-
-        return False, vehicle_speed
+    def parse(self, data):
+        if data.arbitration_id == 0x08fe6e0b:
+            self._wheel_speed = self.parse_wheel_speed(data.data)
+            self.emit('data', self._wheel_speed * self._gear)
 
     def parse_wheel_speed(self, data):
         '''
@@ -162,32 +168,22 @@ class Customer2Parser(AbstractParser):
         speed_rr = (data[4] + data[5] * 256) * scale
         speed_rl = (data[6] + data[7] * 256) * scale
 
-        return (
-            min(speed_fr, max_value),
-            min(speed_fl, max_value),
-            min(speed_rr, max_value),
-            min(speed_rl, max_value))
+        return (min(speed_rr, max_value) + min(speed_rl, max_value))/2
 
 
 class VoyahParser(AbstractParser):
+    _wheel_speed: float = 0
+    _gear: int = 1
+
     def __init__(self):
         super(VoyahParser, self).__init__()
-        pass
+        self._wheel_speed = 0
+        self._gear = 1
 
-    def need_handle_speed_data(self, arbitration_id):
-        return arbitration_id == 0x122
-
-    def parse(self, message_type, data):
-        parse_result = None
-        if message_type == 'WHEEL_SPEED':
-            parse_result = self.parse_wheel_speed(data)
-
-        if not parse_result:
-            return True, None
-
-        vehicle_speed = (parse_result[0]+parse_result[1])/2
-
-        return False, vehicle_speed
+    def parse(self, data):
+        if data.arbitration_id == 0x122:
+            self._wheel_speed = self.parse_wheel_speed(data.data)
+            self.emit('data', self._wheel_speed * self._gear)
 
     def parse_wheel_speed(self, data):
         '''
@@ -205,7 +201,7 @@ class VoyahParser(AbstractParser):
         max_value = 270
         speed_rr = (data[0]+((data[1] & 0x1F) << 8)) * scale + offset
         speed_rl = (data[2]+((data[3] & 0x1F) << 8)) * scale + offset
-        return (min(speed_rr, max_value), min(speed_rl, max_value))
+        return (min(speed_rr, max_value) + min(speed_rl, max_value))/2
 
 
 class CanParserFactory:
@@ -220,4 +216,5 @@ class CanParserFactory:
                 'Failed to initalize specified can parser:{0}, use default'.format(type))
             instance = DefaultParser()
 
+        instance.type = type
         return instance

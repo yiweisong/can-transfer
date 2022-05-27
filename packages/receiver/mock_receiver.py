@@ -31,6 +31,21 @@ def mock_speed_message(can_parser_type):
     msg.data = speed_data
     return msg
 
+def mock_gear_message(can_parser_type):
+    speed_data = []
+    for _ in range(8):
+        speed_data.append(random.randint(0, 32))
+
+    msg = mock_can_message()
+    if can_parser_type == 'DefaultParser':
+        msg.arbitration_id = 0x3BC
+    else:
+        msg.arbitration_id = 0x3BC
+
+    msg.timestamp = time.time()
+    msg.data = speed_data
+    return msg
+
 
 class MockReceiver(EventEmitter):
     def __init__(self, options):
@@ -42,5 +57,7 @@ class MockReceiver(EventEmitter):
         frequency = 20/1000
         while True:
             message = mock_speed_message(can_parser_type)
+            self.emit('data', message)
+            message = mock_gear_message(can_parser_type)
             self.emit('data', message)
             time.sleep(frequency)

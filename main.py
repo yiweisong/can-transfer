@@ -10,6 +10,7 @@ from packages.receiver import (
     create_mock_receiver,
     create_windows_receiver
 )
+from packages.receiver.odometer_listener import OdometerListener
 from packages.transfer import (create_transfer, create_eth_100base_t1_transfer)
 from packages.transfer.transfer_center import TransferCenter
 from packages.typings import (
@@ -44,34 +45,34 @@ def transfer_task():
     can_parser = CanParserFactory.create(config['can_parser'])
     can_speed_log = app_logger.create_logger('can_speed')
 
-    @utils.throttle(seconds=0.05)
-    def handle_wheel_speed_data(data):
+    # @utils.throttle(seconds=0.05)
+    def handle_wheel_speed_data(speed):
         # parse wheel speed
-        parse_error, parse_result = can_parser.parse('WHEEL_SPEED', data.data)
-        if parse_error:
-            return
-
-        speed = parse_result
+        # parse_error, parse_result = can_parser.parse('WHEEL_SPEED', data.data)
+        # if parse_error:
+        #     return
 
         # dispatch to transfers
         transfer_center.dispatch_vehicle_speed(speed)
 
         # log timestamp
-        can_speed_log.append('{0}, {1}'.format(data.timestamp, speed))
+        can_speed_log.append(speed)
 
-    def receiver_handler(data):
-        if can_parser.need_handle_speed_data(data.arbitration_id):
-            handle_wheel_speed_data(data)
+    # def receiver_handler(data):
+    #     if can_parser.need_handle_speed_data(data.arbitration_id):
+    #         handle_wheel_speed_data(data)
 
     try:
         print_message('[Info] Transfer task started')
-        # can_log_receiver = create_mock_receiver(
-        #     {'can_parser': config['can_parser']})
-        can_log_receiver = create_windows_receiver(CanOptions(0, 500000))
-        can_log_receiver.on('data', receiver_handler)
+        # odometer_listener = create_mock_odometer_listener(
+        #     CanOptions(0, 500000), can_parser)
+        odometer_listener = OdometerListener(CanOptions(0, 500000), can_parser)
+        #create_windows_receiver(CanOptions(0, 500000))
+        odometer_listener.on('data', handle_wheel_speed_data)
     except Exception as ex:
         print_message('[Error] Transfer task has error')
         print_message('[Error] Reason:{0}'.format(ex))
+
 
 @utils.platform_setup
 def start_task():
