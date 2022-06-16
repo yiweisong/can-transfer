@@ -204,6 +204,48 @@ class VoyahParser(AbstractParser):
         return (min(speed_rr, max_value) + min(speed_rl, max_value))/2
 
 
+class TrunkParer(AbstractParser):
+    _wheel_speed: float = 0
+    _gear: int = 1
+
+    def __init__(self):
+        super(TrunkParer, self).__init__()
+        self._wheel_speed = 0
+        self._gear = 1
+
+    def parse(self, data):
+        if data.arbitration_id == 0x8FE6EFE:
+            self._wheel_speed = self.parse_wheel_speed(data.data)
+            self.emit('data', self._wheel_speed * self._gear)
+
+    def parse_wheel_speed(self, data):
+        '''
+        Trunk parser
+
+        in: CAN msg
+        out: in [km/h]
+            WHEEL_SPEED_FR
+            WHEEL_SPEED_FL
+            WHEEL_SPEED_RR
+            WHEEL_SPEED_RL
+
+        msg length: 8 bytes
+
+        FrontAxleLeftWheelSpeed: little endian 0:16 bit
+        FrontAxleRightWheelSpeed: little endian 16:32 bit
+        RearAxleLeftWheelSpeed: little endian 32:48 bit
+        RearAxleRightWheelSpeed: little endian 48:64 bit
+
+        '''
+        scale = 0.00390625
+        max_value = 250.996
+        speed_fr = (data[0] + data[1] * 256) * scale
+        speed_fl = (data[2] + data[3] * 256) * scale
+        speed_rr = (data[4] + data[5] * 256) * scale
+        speed_rl = (data[6] + data[7] * 256) * scale
+
+        return (min(speed_rr, max_value) + min(speed_rl, max_value))/2
+
 class CanParserFactory:
     def create(type: str = None) -> AbstractParser:
         try:
