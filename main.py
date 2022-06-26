@@ -1,22 +1,11 @@
 import os
 import time
 import threading
-import struct
-import json
-from datetime import datetime
-from packages.receiver import (
-    create_uart_receiver,
-    create_can_receiver,
-    create_mock_receiver,
-    create_windows_receiver
-)
+from unittest import mock
 from packages.receiver.odometer_listener import OdometerListener
 from packages.transfer import (create_transfer, create_eth_100base_t1_transfer)
 from packages.transfer.transfer_center import TransferCenter
-from packages.typings import (
-    UartOptions, CanOptions, UartMessageBody, EthOptions)
 from packages.common import (utils, app_logger)
-from packages.common.can_parser import CanParserFactory
 
 
 print_message = utils.print_message
@@ -24,14 +13,13 @@ print_message = utils.print_message
 
 def read_config():
     config = utils.get_config()
-    if not config.__contains__('can_parser'):
-        config['can_parser'] = 'DefaultParser'
     return config
 
 
 def transfer_task():
     # read configuration, generate transfers
     config = read_config()
+
     transfer_center = TransferCenter(config['can_transfer'])
 
     last_error = transfer_center.get_error()
@@ -42,32 +30,17 @@ def transfer_task():
         return
 
     # parse can message
-    can_parser = CanParserFactory.create(config['can_parser'])
     can_speed_log = app_logger.create_logger('can_speed')
 
-    # @utils.throttle(seconds=0.05)
-    def handle_wheel_speed_data(speed):
-        # parse wheel speed
-        # parse_error, parse_result = can_parser.parse('WHEEL_SPEED', data.data)
-        # if parse_error:
-        #     return
-
-        # dispatch to transfers
+    def handle_wheel_speed_data(event_time, speed):
         transfer_center.dispatch_vehicle_speed(speed)
-
         # log timestamp
-        can_speed_log.append(speed)
-
-    # def receiver_handler(data):
-    #     if can_parser.need_handle_speed_data(data.arbitration_id):
-    #         handle_wheel_speed_data(data)
+        can_speed_log.append('{0}, {1}'.format(event_time, speed))
 
     try:
         print_message('[Info] Transfer task started')
-        # odometer_listener = create_mock_odometer_listener(
-        #     CanOptions(0, 500000), can_parser)
-        odometer_listener = OdometerListener(CanOptions(0, 500000), can_parser)
-        #create_windows_receiver(CanOptions(0, 500000))
+        odometer_listener = OdometerListener(
+            config['can_bus'], config['odometer'])
         odometer_listener.on('data', handle_wheel_speed_data)
     except Exception as ex:
         print_message('[Error] Transfer task has error')

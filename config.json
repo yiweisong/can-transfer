@@ -1,6 +1,5 @@
 {
     "devices_mac": [],
-    "can_parser": "DefaultParser",
     "can_transfer": [
         {
             "protocol": "uart",
@@ -16,5 +15,80 @@
             "provider": "ins401",
             "disabled": true
         }
-    ]
+    ],
+    "can_bus":{
+        "channel": 0,
+        "bitrate": 500000
+    },
+    "odometer": {
+        "name": "DefaultParser",
+        "speed": {
+            "id": "0xAA",
+            "compute": {
+                "method": "avg",
+                "params": [
+                    {
+                        "protocol": "moto",
+                        "start": 32,
+                        "length": 16,
+                        "scale": 0.01,
+                        "offset": -67.67,
+                        "range": [
+                            0,
+                            250
+                        ]
+                    },
+                    {
+                        "protocol": "moto",
+                        "start": 48,
+                        "length": 16,
+                        "scale": 0.01,
+                        "offset": -67.67,
+                        "range": [
+                            0,
+                            250
+                        ]
+                    }
+                ]
+            }
+        },
+        "gear": {
+            "id": "0x3BC",
+            "compute": {
+                "method": "raw",
+                "params": {
+                    "protocol": "moto",
+                    "start": 8,
+                    "length": 6,
+                    "scale": 1,
+                    "offset": 0,
+                    "range": [
+                        0,
+                        63
+                    ]
+                }
+            },
+            "convert": {
+                "method": "map",
+                "params": [
+                    {
+                        "key": 32,
+                        "value": 1
+                    },
+                    {
+                        "key": 16,
+                        "value": -1
+                    },
+                    {
+                        "key": 8,
+                        "value": 1
+                    },
+                    {
+                        "key": 0,
+                        "value": 1
+                    }
+                ]
+            }
+        }
+    }
 }

@@ -1,108 +1,1 @@
-from typing import Any, List
-
-
-class UartOptions:
-    _path: str
-    _baudrate: int
-
-    def __init__(self, path: str, baudrate: int) -> None:
-        self._path = path
-        self._baudrate = baudrate
-
-    @property
-    def path(self):
-        return self._path
-
-    @property
-    def baudrate(self):
-        return self._baudrate
-
-
-class TransferBaseOptions:
-    _protocol: str
-    _provider: int
-
-    def __init__(self, protocol, provider) -> None:
-        self._protocol = protocol
-        self._provider = provider
-
-
-class UartTransferOptions(TransferBaseOptions):
-    _conn_options: UartOptions
-
-    def __init__(self, protocol, provider, conn_options: UartOptions) -> None:
-        super().__init__(protocol, provider)
-        self._conn_options = conn_options
-
-class EthernetTransferOptions(TransferBaseOptions):
-
-    def __init__(self, protocol, provider) -> None:
-        super().__init__(protocol, provider)
-
-
-class CanOptions:
-    _channel: str or int
-    _bitrate: int
-
-    def __init__(self, channel: str or int, bitrate: int) -> None:
-        self._channel = channel
-        self._bitrate = bitrate
-
-    @property
-    def channel(self):
-        return self._channel
-
-    @property
-    def bitrate(self):
-        return self._bitrate
-
-
-class UartMessageBody:
-    _type: str
-    _data: any
-
-    def __init__(self, type: str, data: any) -> None:
-        self._type = type
-        self._data = data
-
-    @property
-    def type(self):
-        return self._type
-
-    @property
-    def data(self):
-        return self._data
-
-
-class EthOptions:
-    _iface: Any
-    _src_mac: str
-    _dst_mac: List[str]
-
-    def __init__(self, iface, src_mac, dst_mac) -> None:
-        self._iface = iface
-        self._src_mac = src_mac
-        self._dst_mac = dst_mac
-
-    @property
-    def iface(self):
-        return self._iface
-
-    @property
-    def src_mac(self):
-        return self._src_mac
-
-    @property
-    def dst_mac(self):
-        return self._dst_mac
-
-
-class EthernetDevice:
-    _mac_address: str
-
-    def __init__(self, mac_address):
-        self._mac_address = mac_address
-
-    @property
-    def mac_address(self):
-        return self._mac_address
+from typing import Any, ListMessageValue = int or floatclass UartOptions:    _path: str    _baudrate: int    def __init__(self, path: str, baudrate: int) -> None:        self._path = path        self._baudrate = baudrate    @property    def path(self):        return self._path    @property    def baudrate(self):        return self._baudrateclass TransferBaseOptions:    _protocol: str    _provider: int    def __init__(self, protocol, provider) -> None:        self._protocol = protocol        self._provider = providerclass UartTransferOptions(TransferBaseOptions):    __conn_options: UartOptions    def __init__(self, protocol, provider, conn_options: UartOptions) -> None:        super().__init__(protocol, provider)        self.__conn_options = conn_optionsclass EthernetTransferOptions(TransferBaseOptions):    def __init__(self, protocol, provider) -> None:        super().__init__(protocol, provider)class CanOptions:    _channel: str or int    _bitrate: int    def __init__(self, channel: str or int, bitrate: int) -> None:        self._channel = channel        self._bitrate = bitrate    @property    def channel(self):        return self._channel    @property    def bitrate(self):        return self._bitrateclass UartMessageBody:    _type: str    _data: any    def __init__(self, type: str, data: any) -> None:        self._type = type        self._data = data    @property    def type(self):        return self._type    @property    def data(self):        return self._dataclass EthOptions:    _iface: Any    _src_mac: str    _dst_mac: List[str]    def __init__(self, iface, src_mac, dst_mac) -> None:        self._iface = iface        self._src_mac = src_mac        self._dst_mac = dst_mac    @property    def iface(self):        return self._iface    @property    def src_mac(self):        return self._src_mac    @property    def dst_mac(self):        return self._dst_macclass EthernetDevice:    _mac_address: str    def __init__(self, mac_address):        self._mac_address = mac_address    @property    def mac_address(self):        return self._mac_addressclass SignalParameter:    _protocol: str    _start: int    _length: int    _scale: float    _offset: int    _range: list    def __init__(self, params: dict) -> None:        self._protocol = params.get('protocol')        self._start = params.get('start')        self._length = params.get('length')        self._scale = params.get('scale')        self._offset = params.get('offset')        self._range = params.get('range')    @property    def protocol(self):        return self._protocol    @property    def start(self):        return self._start    @property    def length(self):        return self._length    @property    def scale(self):        return self._scale    @property    def offset(self):        return self._offset    @property    def range(self):        return self._rangeclass MapConvertorParameter:    _key: int    _value: int    def __init__(self, key: int, value: int) -> None:        self._key = key        self._value = value    @property    def key(self) -> int:        return self._key    @property    def value(self) -> int:        return self._valueclass ComputorOptions:    _method: str    _params: object    def __init__(self, method, params) -> None:        self._method = method        self._params = params    @property    def method(self) -> str:        return self._method    @property    def params(self) -> object:        return self._paramsclass ConvertorOptions:    _method: str    _params: object    def __init__(self, method, params) -> None:        self._method = method        self._params = params    @property    def method(self) -> str:        return self._method    @property    def params(self) -> object:        return self._paramsclass SignalOptions:    _id: int    _compute: ComputorOptions = None    _convert: ConvertorOptions = None    def __init__(self, id: str, compute: dict = None, convert: dict = None) -> None:        int_id = 0        try:            int_id = int(id, 16)        except:            print('Invalid signal id value: {0}'.format(id))            int_id = 0        self._id = int_id        if compute:            self._compute = ComputorOptions(                compute.get('method'),                compute.get('params')            )        if convert:            self._convert = ConvertorOptions(                convert.get('method'),                convert.get('params')            )    @property    def id(self) -> int:        return self._id    @property    def compute(self) -> ComputorOptions:        return self._compute    @property    def convert(self) -> ConvertorOptions:        return self._convertclass OdometerOptions:    _speed: SignalOptions = None    _gear: SignalOptions = None    def __init__(self, config: dict) -> None:        config_speed = config.get('speed')        if config_speed:            self._speed = SignalOptions(                config_speed.get('id'),                config_speed.get('compute'),                config_speed.get('convert'))        config_gear = config.get('gear')        if config_gear:            self._gear = SignalOptions(                config_gear.get('id'),                config_gear.get('compute'),                config_gear.get('convert'))    @ property    def speed(self) -> SignalOptions:        return self._speed    @ property    def speed_id(self) -> int:        if self._speed:            return self._speed.id        return None    @ property    def gear(self) -> SignalOptions:        return self._gear    @ property    def gear_id(self) -> int:        if self._gear:            return self._gear.id        return None
