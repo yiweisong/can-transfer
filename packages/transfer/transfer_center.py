@@ -106,7 +106,7 @@ class INS401EthernetTransfer(TransferBase):
 
         if not self._transfer:
             raise Exception(
-                'Cannot connect the INS401 100base-t1 transfer, please check the configuration')
+                'Cannot connect the INS 100base-t1 transfer, please check the configuration')
 
     def on_initalize(self):
         print('[Info] Listen mac address list:')
@@ -149,7 +149,7 @@ class TransferFactory:
             transfer.on_initalize()
             return transfer
 
-        if protocol == '100base-t1' and provider == 'ins401':
+        if protocol == '100base-t1' and provider == 'ins401' or provider == 'ins402':
             transfer = INS401EthernetTransfer()
             transfer.on_initalize()
             return transfer
