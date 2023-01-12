@@ -40,10 +40,12 @@ def calculate(parameter: SignalParameter, data: bytes) -> MessageValue:
     len_of_value = len(value_bytes)
 
     if len_of_value == 1:
-        value = value_bytes[0] & (int(math.pow(2, parameter.length))-1)
+        abs = int(math.pow(2, parameter.length))-1
+        move_len = parameter.start % 8
+        value = value_bytes[0] >> move_len & abs
 
     elif len_of_value == 2:
-        abs = (int(math.pow(2, parameter.length))-1)
+        abs = int(math.pow(2, parameter.length))-1
         fmt = '<H' if parameter.protocol == 'intel' else '>H'
         value = struct.unpack(fmt, value_bytes)[0] & abs
 
