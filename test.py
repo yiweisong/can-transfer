@@ -1,20 +1,1 @@
-from struct import pack
-from packages.common.utils import gps_week_seconds_to_utc
-from scapy.all import (Packet, PacketList, sendp, resolve_iface)
-from packages.common import utils
-from packages.common import message_helper
-# utc_time = gps_week_seconds_to_utc(2166, 463261.918)
-# print(utc_time)
-
-if __name__ == '__main__':
-    msg1 = message_helper.build_nmea_message(['PQTMCFGDRMODE','0'])
-    print(msg1)
-
-    # msg2 = message_helper.build_nmea_message(['PQTMCFGDRMODE','1','2'])
-    # print(msg2)
-
-    print(message_helper.build_nmea_message(['PQTMVEHMSG','1','0',str(0)]))
-    print(message_helper.build_nmea_message(['PQTMVEHMSG','1','0',str(12.3)]))
-    print(message_helper.build_nmea_message(['PQTMVEHMSG','1','0',str(20.5)]))
-    print(message_helper.build_nmea_message(['PQTMVEHMSG','1','0',str(30.8)]))
-    #print(msg3)
+from struct import packfrom packages.common.utils import gps_week_seconds_to_utcfrom packages.common import utilsfrom packages.common import message_helperfrom packages.common.can_parser import calculatefrom packages.typings import SignalParameter# utc_time = gps_week_seconds_to_utc(2166, 463261.918)# print(utc_time)if __name__ == '__main__':    value = calculate(SignalParameter({        'protocol': 'moto',        'start': 28,        'length': 13,        'scale': 0.05625,        'offset': 0,        'range': [0, 240]    }), bytes([0xE0, 0x00, 0x6F, 0xE0, 0x71, 0x00, 0x0F, 0x50]))    print('moto:', value)    value = calculate(SignalParameter({        'protocol': 'moto',        'start': 12,        'length': 13,        'scale': 0.05625,        'offset': 0,        'range': [0, 240]    }),bytes([0xE0, 0x00, 0x6F, 0xE0, 0x71, 0x00, 0x0F, 0x50]))    print('moto:', value)    value = calculate(SignalParameter({        'protocol': 'moto',        'start': 39,        'length': 16,        'scale': 0.01,        'offset': -67.67,        'range': [0, 250]    }), bytes([0x1B,0x9A,0x1B, 0x91, 0x1B, 0x94, 0x1B, 0x8E ]))    print('toyota speed:', value)    value = calculate(SignalParameter({        'protocol': 'moto',        'start': 55,        'length': 16,        'scale': 0.01,        'offset': -67.67,        'range': [0, 250]    }), bytes([0x1B,0x9A,0x1B, 0x91, 0x1B, 0x94, 0x1B, 0x8E ]))    print('toyota speed:', value)    value = calculate(SignalParameter({        'protocol': 'moto',        'start': 13,        'length': 6,        'scale': 1,        'offset': 0,        'range': [0, 63]    }), bytes([0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]))    print('toyota gear:', value)    value = calculate(SignalParameter({        'protocol': 'intel',        'start': 28,        'length': 12,        'scale': 0.06875,        'offset': 0,        'range': [0, 281.4625]    }), bytes([0x00, 0x10, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00]))    print('intel:', value)    value = calculate(SignalParameter({        'protocol': 'intel',        'start': 40,        'length': 12,        'scale': 0.06875,        'offset': 0,        'range': [0, 281.4625]    }), bytes([0xff, 0xff, 0xff, 0x01, 0x00, 0x00, 0x00, 0x50]))    print('intel:', value)

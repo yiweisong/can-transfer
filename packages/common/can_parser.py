@@ -32,27 +32,26 @@ def build_signal_parser(name, options: SignalOptions):
     return SignalParser(name, options)
 
 
+def fix_start_bit(motorola: bool, start: int, siglen: int):
+    if motorola:
+        start = (8 * (7 - int(start / 8))) + (start % 8) - (siglen - 1)
+    return start
+
+
 def calculate(parameter: SignalParameter, data: bytes) -> MessageValue:
-    start_byte_pos = math.floor(parameter.start/8)
-    end_byte_pos = math.ceil((parameter.start+parameter.length)/8)
-
-    value_bytes = data[start_byte_pos:end_byte_pos]
-    len_of_value = len(value_bytes)
-
-    if len_of_value == 1:
+    value = 0
+    try:
         abs = int(math.pow(2, parameter.length))-1
-        move_len = parameter.start % 8
-        value = value_bytes[0] >> move_len & abs
+        is_intel = parameter.protocol == 'intel'
+        fmt = '<Q' if is_intel else '>Q'
+        value = struct.unpack(fmt, data)[0]
+        start = fix_start_bit(not is_intel, parameter.start, parameter.length)
+        value = value >> start & abs
 
-    elif len_of_value == 2:
-        abs = int(math.pow(2, parameter.length))-1
-        fmt = '<H' if parameter.protocol == 'intel' else '>H'
-        value = struct.unpack(fmt, value_bytes)[0] & abs
-
-    else:
-        raise Exception('Cannot calculate')
-
-    value = value * parameter.scale + parameter.offset
+        value = value * parameter.scale + parameter.offset
+    except Exception as e:
+        print('calculate error:', e)
+        value = 0
 
     if parameter.range:
         return min(max(value, parameter.range[0]), parameter.range[1])
@@ -91,7 +90,7 @@ class RawComputor:
 
 
 class MapConvertor:
-    _parameters: List[MapConvertorParameter]=[]
+    _parameters: List[MapConvertorParameter] = []
 
     def __init__(self, options: ConvertorOptions):
         for parameter in options.params:
@@ -158,8 +157,6 @@ class OdometerParser(EventEmitter):
         if self._speed_signal_parser and data.arbitration_id == self._speed_id:
             self._wheel_speed = self._speed_signal_parser.parse(data.data)
             self.emit('data', data.timestamp, self._wheel_speed * self._gear)
-            return
 
         if self._gear_signal_parser and data.arbitration_id == self._gear_id:
             self._gear = self._gear_signal_parser.parse(data.data)
-            return
