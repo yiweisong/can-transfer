@@ -11,6 +11,15 @@
             "disabled": true
         },
         {
+            "protocol": "uart",
+            "connection": {
+                "path": "/dev/tty.usbserial-143200",
+                "baudrate": 115200
+            },
+            "provider": "rtk350la",
+            "disabled": false
+        },
+        {
             "protocol": "100base-t1",
             "provider": "ins401",
             "disabled": true
