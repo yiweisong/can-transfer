@@ -45,8 +45,7 @@ class RTK350LATransfer(TransferBase):
     def send_vehicle_speed(self, speed: int):
         # build uart command cA, speed
         message = message_helper.build_uart_command(bytes([0x63, 0x41]),list(struct.pack("<f", speed)))
-        print(message)
-        #self._transfer.send(message)
+        self._transfer.send(message)
 
 
 class LG69TUartTransfer(TransferBase):
