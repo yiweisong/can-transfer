@@ -4,16 +4,7 @@ import logging
 from io import FileIO
 from logging import handlers
 
-
-class LogContext:
-    root_path = None
-    data_folder_path = None
-    session_path = None
-    initalized = False
-
-
 LOG_FORMAT = '%(asctime)s, %(message)s'
-
 
 class FileLogger:
     _logger: logging.Logger
@@ -46,6 +37,12 @@ class RawFileLogger:
     def flush(self):
         self._internal_file_access.flush()
 
+class LogContext:
+    root_path = None
+    data_folder_path = None
+    session_path = None
+    initalized = False
+    trace_log: FileLogger = None
 
 def new_session():
     if LogContext.initalized:
@@ -65,6 +62,8 @@ def new_session():
     LogContext.data_folder_path = data_folder_path
     LogContext.session_path = session_path
     LogContext.initalized = True
+
+    LogContext.trace_log = create_logger('trace')
 
 
 def create_logger(file_path) -> FileLogger:

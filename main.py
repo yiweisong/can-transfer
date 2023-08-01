@@ -24,38 +24,48 @@ def transfer_task():
 
     last_error = transfer_center.get_error()
     if last_error:
-        print_message(
-            '[Error] Initalize transfer failed.')
-        print_message('[Error]', last_error.message)
-        return
+        print_message('[Error] Initalize transfer center failed.')
+        print_message('[Error] {0}'.format(last_error.message))
 
-    # parse can message
+        if transfer_center.can_continue_work:
+            print_message('[Info] Although some transfer failed to initialize, but the others are ready')
+        else:
+            print_message('[Error] No transfer is ready, exit.')
+            return
+    
+
     can_speed_log = app_logger.create_logger('can_speed')
 
+
     def handle_wheel_speed_data(event_time, speed):
-        transfer_center.dispatch_vehicle_speed(speed)
+        try:
+            transfer_center.dispatch_vehicle_speed(speed)
+        except Exception as ex:
+            print_message('[Error] Dispatch data has error')
+            print_message('[Error] Reason:{0}'.format(ex))
+            #trace_log.append('[Error] Reason:{0}'.format(ex))
         # log timestamp
         can_speed_log.append('{0}, {1}'.format(event_time, speed))
 
     try:
-        print_message('[Info] Transfer task started')
+        print_message('[Info] Transfer center is starting...')
         odometer_listener = OdometerListener(
             config['can_bus'], config['odometer'])
         odometer_listener.on('data', handle_wheel_speed_data)
     except Exception as ex:
-        print_message('[Error] Transfer task has error')
+        print_message('[Error] Odometer listener has error')
         print_message('[Error] Reason:{0}'.format(ex))
 
 
 @utils.platform_setup
 def start_task():
     app_logger.new_session()
+    print_message('[Info] Application start working...')
     threading.Thread(target=transfer_task).start()
 
 
 if __name__ == '__main__':
     try:
-        print_message('[Info] Application start working...')
         start_task()
         while True:
             time.sleep(1)
