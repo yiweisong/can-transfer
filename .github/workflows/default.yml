@@ -1,0 +1,32 @@
+name: default-actions
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_executable_matrix:
+    strategy:
+      matrix:
+        os: [windows-2019]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Build Artifact
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller==6.5.0
+          pyinstaller build.spec
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifactors
+          path: dist/
+          if-no-files-found: error
+      
