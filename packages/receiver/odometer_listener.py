@@ -33,18 +33,19 @@ class OdometerListener(EventEmitter):
         self._parser = OdometerParser(odometer_options)
         self._parser.on('data', self._update_speed_info)
 
-        threading.Thread(target=self._emit_data).start()
+        #threading.Thread(target=self._emit_data).start()
 
-    def _emit_data(self):
-        while True:
-            if self._received:
-                self.emit('data', self._event_time, self._wheel_speed)
-            time.sleep(0.05)
+    # def _emit_data(self):
+    #     while True:
+    #         if self._received:
+    #             self.emit('data', self._event_time, self._wheel_speed)
+    #         time.sleep(0.01)
 
     def _update_speed_info(self, event_time, speed):
-        self._received = True
-        self._wheel_speed = speed
-        self._event_time = event_time
+        # self._received = True
+        # self._wheel_speed = speed
+        # self._event_time = event_time
+        self.emit('data', event_time, speed)
 
     def _msg_handler(self, msg):
         if self._parser:
