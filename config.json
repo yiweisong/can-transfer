@@ -17,7 +17,15 @@
                 "baudrate": 115200
             },
             "provider": "rtk350la",
-            "disabled": false
+            "disabled": true
+        },
+        {
+            "protocol": "uart",
+            "connection": {
+                "path": "/dev/cu.usbserial-143200",
+                "baudrate": 115200
+            },
+            "provider": "ins330"
         },
         {
             "protocol": "100base-t1",

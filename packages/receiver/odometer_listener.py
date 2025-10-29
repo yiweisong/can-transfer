@@ -41,11 +41,11 @@ class OdometerListener(EventEmitter):
     #             self.emit('data', self._event_time, self._wheel_speed)
     #         time.sleep(0.01)
 
-    def _update_speed_info(self, event_time, speed):
+    def _update_speed_info(self, event_time, speed, gear):
         # self._received = True
         # self._wheel_speed = speed
         # self._event_time = event_time
-        self.emit('data', event_time, speed)
+        self.emit('data', event_time, speed, gear)
 
     def _msg_handler(self, msg):
         if self._parser:

@@ -156,7 +156,7 @@ class OdometerParser(EventEmitter):
     def parse(self, data):
         if self._speed_signal_parser and data.arbitration_id == self._speed_id:
             self._wheel_speed = self._speed_signal_parser.parse(data.data)
-            self.emit('data', data.timestamp, self._wheel_speed * self._gear)
+            self.emit('data', data.timestamp, self._wheel_speed * self._gear, self._gear)
 
         if self._gear_signal_parser and data.arbitration_id == self._gear_id:
             self._gear = self._gear_signal_parser.parse(data.data)
