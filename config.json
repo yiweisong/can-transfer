@@ -25,12 +25,18 @@
                 "path": "/dev/cu.usbserial-143200",
                 "baudrate": 115200
             },
-            "provider": "ins330"
+            "provider": "ins330",
+            "disabled": true
         },
         {
             "protocol": "100base-t1",
             "provider": "ins401",
             "disabled": true
+        },
+        {
+            "protocol": "can",
+            "provider": "mtlt335d",
+            "disabled": false
         }
     ],
     "can_bus":{
