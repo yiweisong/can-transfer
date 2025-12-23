@@ -39,7 +39,7 @@
             "disabled": false
         }
     ],
-    "can_bus":{
+    "can_bus": {
         "channel": 0,
         "bitrate": 500000
     },

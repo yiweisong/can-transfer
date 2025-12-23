@@ -35,9 +35,8 @@ def transfer_task():
             print_message('[Error] No transfer is ready, exit.')
             return
     
-
+    time.sleep(1)
     can_speed_log = app_logger.create_logger('can_speed')
-
 
     def handle_wheel_speed_data(event_time, speed, gear):
         try:
