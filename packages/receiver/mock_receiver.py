@@ -46,7 +46,7 @@ class MockReceiver(EventEmitter):
         threading.Thread(target=self._receive, args=(options,)).start()
 
     def _receive(self, options: OdometerOptions):
-        frequency = 20/1000
+        frequency = 1/100  # 100 Hz
         while True:
             if options.speed:
                 message = mock_speed_message(options.speed)

@@ -1,17 +1,1 @@
-import can
-from ..common.context import AppContext
-from ..typings import CanOptions
-
-class CanTransfer:
-    def __init__(self, options: CanOptions):
-        if AppContext.can_bus is None:
-            AppContext.can_bus = can.interface.Bus(
-                channel=options.channel, 
-                bustype='canalystii', 
-                bitrate=options.bitrate
-            )
-        
-        self.can = AppContext.can_bus
-    
-    def send(self, data):
-        self.can.send(data)
+import canfrom ..common.context import AppContextfrom ..typings import CanOptionsclass CanTransfer:    def __init__(self, options: CanOptions):        can_receiver_config = AppContext.config.get('can_bus')        is_same_receiver_config = can_receiver_config.get('channel') == options.channel and int(can_receiver_config.get('bitrate')) == options.bitrate                if is_same_receiver_config:            if AppContext.can_bus is None:                AppContext.can_bus = can.interface.Bus(                    channel=options.channel,                     bustype='canalystii',                     bitrate=options.bitrate                )                self.can = AppContext.can_bus        else:            self.can = can.interface.Bus(                channel=options.channel,                 bustype='canalystii',                 bitrate=options.bitrate            )    def send(self, data):        self.can.send(data)

@@ -35,6 +35,10 @@
         },
         {
             "protocol": "can",
+            "connection":{
+                "channel": 1,
+                "bitrate": 500000
+            },
             "provider": "mtlt335d",
             "disabled": false
         }
